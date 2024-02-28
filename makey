@@ -1,0 +1,57 @@
+#include <Keyboard.h> // Librería para el control del teclado
+
+#define in1 2
+#define in2 3
+#define in3 4
+#define in4 5
+#define ana A0
+
+const int PressedMaxThreshold = 50; // Umbral máximo de presión
+const int ReleasedMinThreshold = 500; // Umbral mínimo de liberación
+
+const byte PinCount = 4; // Número de pines
+
+const byte InputPins[PinCount] = {2, 3, 6, 7}; // Pines de entrada
+const char KeyCodes[PinCount] = {'a', 's', 'd', 'w'}; // Códigos de tecla correspondientes
+
+struct TouchInput
+{
+  byte digitalPin; // Pin digital
+  char keycode; // Código de tecla
+};
+
+TouchInput Pins[PinCount]; // Arreglo de entrada de pines
+
+void setup()
+{
+  Serial.begin(9600); // Iniciar comunicación serial
+  Keyboard.begin(); // Iniciar el teclado USB
+
+  // Configurar cada pin de entrada y asignar código de tecla correspondiente
+  for (int a = 0; a < PinCount; a++)
+  {
+    Pins[a].digitalPin = InputPins[a];
+    Pins[a].keycode = KeyCodes[a];
+    pinMode(Pins[a].digitalPin, INPUT);
+    Serial.print(Pins[a].digitalPin);
+    Serial.println(" as INPUT");
+  }
+}
+
+void loop()
+{
+  // Escanear cada pin de entrada
+  for (int i = 0; i < PinCount; i++)
+  {
+    int estado = digitalRead(Pins[i].digitalPin);
+    
+    // Si se detecta un toque (presión)
+    if (estado == LOW)
+    {
+      Keyboard.press(Pins[i].keycode); // Presionar la tecla correspondiente
+      delay(100); // Ajustar el retardo según sea necesario
+      Keyboard.release(Pins[i].keycode); // Liberar la tecla
+      delay(100); // Ajustar el retardo según sea necesario
+    }
+  }
+}
